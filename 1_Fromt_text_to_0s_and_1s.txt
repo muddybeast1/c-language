@@ -1,0 +1,17 @@
+compile the code and use our linker file:
+riscv64-unknown-elf-gcc -O0 -ggdb -nostdlib -march=rv32i -mabi=ilp32 -Wl,-Tm.ld m.s -o main.elf
+
+start qemu and gdb server:
+qemu-system-riscv32 -S -M virt -nographic -bios none -kernel main.elf -gdb tcp::1234
+
+connect to the gdb server, continue and put a break point at the _start with less verbosity:
+gdb-multiarch main.elf -ex "target remote localhost:1234" -ex "break _start" -ex "continue" -q
+
+generate the binary file without any extra symbols:
+riscv64-unknown-elf-objcopy -O binary main.elf main.bin
+
+read the binary file:
+xxd -e -c 4 -g 4 main.bin
+
+Install gdb-dashboard:
+wget -P ~ https://github.com/cyrus-and/gdb-dashboard/raw/master/.gdbinit
